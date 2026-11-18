@@ -1,0 +1,97 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "s3lin"
+dynamic = ["version"]
+description = "Linearizability checker for histories of S3 conditional writes (If-None-Match, If-Match)"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Rushikesh Yadav Vadlakonda" }]
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["s3", "linearizability", "consistency", "conditional-writes", "testing", "jepsen"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Topic :: Software Development :: Testing",
+  "Topic :: System :: Distributed Computing",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/Rushikesh116/s3lin"
+Source = "https://github.com/Rushikesh116/s3lin"
+Issues = "https://github.com/Rushikesh116/s3lin/issues"
+Changelog = "https://github.com/Rushikesh116/s3lin/blob/main/CHANGELOG.md"
+Study = "https://github.com/Rushikesh116/supabase-storage-s3lin"
+
+[project.scripts]
+s3lin = "s3lin._cli:main"
+
+[dependency-groups]
+test = ["pytest>=8"]
+dev = [
+  { include-group = "test" },
+  "coverage>=7.6",
+  "mypy>=1.13",
+  "ruff>=0.8",
+  "build>=1.2",
+  "twine>=6",
+]
+
+[tool.hatch.version]
+path = "src/s3lin/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples", "CHANGELOG.md", "CONTRIBUTING.md", "README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["s3lin"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool", "possibly-undefined"]
+
+[[tool.mypy.overrides]]
+module = "s3lin.*"
+disallow_any_explicit = true
+disallow_any_expr = true
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "RUF", "PT", "PIE", "RET", "PL", "PERF", "N"]
+ignore = ["PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR0917", "PLR2004", "PLC0415"]
