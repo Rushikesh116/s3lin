@@ -133,7 +133,24 @@ The tests compare the search with a brute-force oracle on 1,000 small random his
 (600 from the study, 400 added here), and check 270 histories that are linearizable by
 construction for false positives.
 
-<!-- PERFORMANCE -->
+## Performance
+
+Measured with `python tests/bench_check.py` on an Apple M5 MacBook with CPython 3.12
+(synthetic linearizable histories, 5 clients per key, median of 5 runs):
+
+| history | operations | check time |
+|---|---|---|
+| 1 key, 1,000 ops, 10% indeterminate | 1,000 | 0.017 s |
+| 1,000 keys x 100 ops, 10% indeterminate | 100,000 | 0.16 s |
+| 100 keys x 1,000 ops, 30% indeterminate | 100,000 | 8.8 s |
+| 1 key, 10,000 ops, 10% indeterminate | 10,000 | 9.0 s |
+
+Time grows faster than the number of operations on a key, and indeterminate writes make it
+worse: they never return, so they stay in the search for the rest of the key's history.
+Short-lived keys keep checks fast (the study rotated its hot keys every 2 s). The 54
+histories recorded in the study (288,820 operations on 1,245 keys) read and check in 3.2 s,
+and s3lin reports the same 468 violating keys, with the same blocking operations, as the
+study's original checker.
 
 ## Limitations
 
@@ -156,7 +173,19 @@ construction for false positives.
 
 ## Python versions and versioning
 
-<!-- PYTHON MATRIX -->
+s3lin needs Python 3.11 or newer and has no dependencies. The test suite passes on these
+interpreters (macOS arm64, wheel installed in a fresh virtual environment):
+
+| CPython | result |
+|---|---|
+| 3.11.16 | 83 passed |
+| 3.12.13 | 83 passed |
+| 3.13.14 | 83 passed |
+| 3.14.7 | 83 passed, also on the free-threaded build with the GIL disabled |
+| 3.15.0 | 83 passed |
+
+3.11 is the oldest CPython still supported upstream; 3.10 reached end of life in October
+2026.
 
 s3lin follows [Semantic Versioning](https://semver.org/). The public API is what
 `s3lin.__all__` exports, the `s3lin` command (arguments, exit statuses, JSON output) and the
