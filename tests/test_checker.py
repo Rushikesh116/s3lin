@@ -286,7 +286,7 @@ def mutated_tiny_histories(
     rng: random.Random, trials: int, mix: dict[str, float] | None = None
 ) -> list[list[Op]]:
     """Tiny random histories, 70% of them with one outcome or read value flipped."""
-    out = []
+    out: list[list[Op]] = []
     for trial in range(trials):
         h = synth.gen(n_ops=rng.randint(2, 6), n_clients=3, p_info=0.25, seed=1000 + trial, mix=mix)
         if rng.random() < 0.7:

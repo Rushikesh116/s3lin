@@ -6,7 +6,7 @@ import gzip
 import json
 import os
 from collections.abc import Callable, Iterable
-from typing import IO, Final
+from typing import IO, Final, cast
 
 from ._model import HistoryError, Op
 
@@ -33,7 +33,7 @@ def parse_history(lines: Iterable[str], *, source: str = "<history>") -> list[Op
             raise HistoryError(f"{source}:{lineno}: not JSON ({e.msg})") from None
         if not isinstance(obj, dict):
             raise HistoryError(f"{source}:{lineno}: expected a JSON object")
-        record: dict[str, object] = obj
+        record = cast("dict[str, object]", obj)  # JSON object keys are strings
         if "id" not in record and "op" not in record:
             continue
         try:

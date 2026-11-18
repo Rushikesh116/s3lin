@@ -78,6 +78,14 @@ def field_problem(kind: str, value: object, base_value: object, read_value: obje
     return None
 
 
+def _is_int(x: object) -> bool:
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def _is_str(x: object) -> bool:
+    return isinstance(x, str)
+
+
 def _is_time(x: object) -> bool:
     return isinstance(x, int | float) and not isinstance(x, bool) and math.isfinite(x)
 
@@ -113,23 +121,18 @@ class Op:
     def _problem(self) -> str | None:
         # Fields are re-checked as plain objects: callers without a type checker,
         # and records parsed from files, can pass anything.
-        op_id: object = self.id
-        key: object = self.key
-        client: object = self.client
-        status: object = self.status
-        if not isinstance(op_id, int) or isinstance(op_id, bool):
+        if not _is_int(self.id):
             return "id must be an integer"
-        if not isinstance(key, str):
+        if not _is_str(self.key):
             return "key must be a string"
-        if not isinstance(client, int | str) or isinstance(client, bool):
+        if not (_is_int(self.client) or _is_str(self.client)):
             return "client must be an integer or a string"
-        if status is not None and (not isinstance(status, int) or isinstance(status, bool)):
+        if self.status is not None and not _is_int(self.status):
             return "status must be an integer or None"
         problem = field_problem(self.kind, self.value, self.base_value, self.read_value)
         if problem is not None:
             return problem
-        result: object = self.result
-        if result not in OUTCOMES:
+        if not _is_str(self.result) or self.result not in OUTCOMES:
             return f"unknown result {self.result!r}"
         if self.kind == "get" and self.result == "fail":
             return "a get has no precondition, so it cannot fail"
